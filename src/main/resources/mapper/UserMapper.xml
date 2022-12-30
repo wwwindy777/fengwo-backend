@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mulan.fengwo_backend.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.mulan.fengwo_backend.model.domain.User">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userName" column="userName" jdbcType="VARCHAR"/>
+            <result property="userAccount" column="userAccount" jdbcType="VARCHAR"/>
+            <result property="avatarUrl" column="avatarUrl" jdbcType="VARCHAR"/>
+            <result property="gender" column="gender" jdbcType="TINYINT"/>
+            <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
+            <result property="phone" column="phone" jdbcType="VARCHAR"/>
+            <result property="email" column="email" jdbcType="VARCHAR"/>
+            <result property="userStatus" column="userStatus" jdbcType="INTEGER"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+            <result property="userRole" column="userRole" jdbcType="INTEGER"/>
+            <result property="tag" column="tag" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,userName,userAccount,
+        avatarUrl,gender,userPassword,
+        phone,email,userStatus,
+        createTime,updateTime,isDelete,
+        userRole,tag
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user
+        where  id = #{id,jdbcType=BIGINT} 
+    </select>
+
+    <select id="getAllUsers" resultMap="BaseResultMap">
+        select * from user
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from user
+        where  id = #{id,jdbcType=BIGINT} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.mulan.fengwo_backend.model.domain.User" useGeneratedKeys="true">
+        insert into user
+        ( id,userName,userAccount
+        ,avatarUrl,gender,userPassword
+        ,phone,email,userStatus
+        ,createTime,updateTime,isDelete
+        ,userRole,tag)
+        values (#{id,jdbcType=BIGINT},#{userName,jdbcType=VARCHAR},#{userAccount,jdbcType=VARCHAR}
+        ,#{avatarUrl,jdbcType=VARCHAR},#{gender,jdbcType=TINYINT},#{userPassword,jdbcType=VARCHAR}
+        ,#{phone,jdbcType=VARCHAR},#{email,jdbcType=VARCHAR},#{userStatus,jdbcType=INTEGER}
+        ,#{createTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP},#{isDelete,jdbcType=TINYINT}
+        ,#{userRole,jdbcType=INTEGER},#{tag,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.mulan.fengwo_backend.model.domain.User" useGeneratedKeys="true">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="userName != null">userName,</if>
+                <if test="userAccount != null">userAccount,</if>
+                <if test="avatarUrl != null">avatarUrl,</if>
+                <if test="gender != null">gender,</if>
+                <if test="userPassword != null">userPassword,</if>
+                <if test="phone != null">phone,</if>
+                <if test="email != null">email,</if>
+                <if test="userStatus != null">userStatus,</if>
+                <if test="createTime != null">createTime,</if>
+                <if test="updateTime != null">updateTime,</if>
+                <if test="isDelete != null">isDelete,</if>
+                <if test="userRole != null">userRole,</if>
+                <if test="tag != null">tag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id,jdbcType=BIGINT},</if>
+                <if test="userName != null">#{userName,jdbcType=VARCHAR},</if>
+                <if test="userAccount != null">#{userAccount,jdbcType=VARCHAR},</if>
+                <if test="avatarUrl != null">#{avatarUrl,jdbcType=VARCHAR},</if>
+                <if test="gender != null">#{gender,jdbcType=TINYINT},</if>
+                <if test="userPassword != null">#{userPassword,jdbcType=VARCHAR},</if>
+                <if test="phone != null">#{phone,jdbcType=VARCHAR},</if>
+                <if test="email != null">#{email,jdbcType=VARCHAR},</if>
+                <if test="userStatus != null">#{userStatus,jdbcType=INTEGER},</if>
+                <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
+                <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+                <if test="isDelete != null">#{isDelete,jdbcType=TINYINT},</if>
+                <if test="userRole != null">#{userRole,jdbcType=INTEGER},</if>
+                <if test="tag != null">#{tag,jdbcType=VARCHAR},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.mulan.fengwo_backend.model.domain.User">
+        update user
+        <set>
+                <if test="userName != null">
+                    userName = #{userName,jdbcType=VARCHAR},
+                </if>
+                <if test="userAccount != null">
+                    userAccount = #{userAccount,jdbcType=VARCHAR},
+                </if>
+                <if test="avatarUrl != null">
+                    avatarUrl = #{avatarUrl,jdbcType=VARCHAR},
+                </if>
+                <if test="gender != null">
+                    gender = #{gender,jdbcType=TINYINT},
+                </if>
+                <if test="userPassword != null">
+                    userPassword = #{userPassword,jdbcType=VARCHAR},
+                </if>
+                <if test="phone != null">
+                    phone = #{phone,jdbcType=VARCHAR},
+                </if>
+                <if test="email != null">
+                    email = #{email,jdbcType=VARCHAR},
+                </if>
+                <if test="userStatus != null">
+                    userStatus = #{userStatus,jdbcType=INTEGER},
+                </if>
+                <if test="createTime != null">
+                    createTime = #{createTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="updateTime != null">
+                    updateTime = #{updateTime,jdbcType=TIMESTAMP},
+                </if>
+                <if test="isDelete != null">
+                    isDelete = #{isDelete,jdbcType=TINYINT},
+                </if>
+                <if test="userRole != null">
+                    userRole = #{userRole,jdbcType=INTEGER},
+                </if>
+                <if test="tag != null">
+                    tag = #{tag,jdbcType=VARCHAR},
+                </if>
+        </set>
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.mulan.fengwo_backend.model.domain.User">
+        update user
+        set 
+            userName =  #{userName,jdbcType=VARCHAR},
+            userAccount =  #{userAccount,jdbcType=VARCHAR},
+            avatarUrl =  #{avatarUrl,jdbcType=VARCHAR},
+            gender =  #{gender,jdbcType=TINYINT},
+            userPassword =  #{userPassword,jdbcType=VARCHAR},
+            phone =  #{phone,jdbcType=VARCHAR},
+            email =  #{email,jdbcType=VARCHAR},
+            userStatus =  #{userStatus,jdbcType=INTEGER},
+            createTime =  #{createTime,jdbcType=TIMESTAMP},
+            updateTime =  #{updateTime,jdbcType=TIMESTAMP},
+            isDelete =  #{isDelete,jdbcType=TINYINT},
+            userRole =  #{userRole,jdbcType=INTEGER},
+            tag =  #{tag,jdbcType=VARCHAR}
+        where   id = #{id,jdbcType=BIGINT} 
+    </update>
+</mapper>
