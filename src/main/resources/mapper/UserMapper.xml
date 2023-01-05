@@ -33,11 +33,17 @@
         select
         <include refid="Base_Column_List" />
         from user
-        where  id = #{id,jdbcType=BIGINT} 
+        where id = #{id,jdbcType=BIGINT}
     </select>
 
     <select id="getAllUsers" resultMap="BaseResultMap">
         select * from user
+    </select>
+    <select id="getUsersByTags" resultType="com.mulan.fengwo_backend.model.domain.User">
+        select * from user where tag like
+                                 <foreach collection="list" separator="and tag like" item="tag">
+                                     '%${tag}%'
+                                 </foreach>
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">

@@ -9,4 +9,6 @@ public interface UserService {
     User searchUserById(Long id);
 
     List<User> searchUsersByTags(List<String> tagNameList);
+
+    User getSafetyUser(User user);
 }

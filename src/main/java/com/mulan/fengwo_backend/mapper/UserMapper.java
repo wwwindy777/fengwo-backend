@@ -1,8 +1,6 @@
 package com.mulan.fengwo_backend.mapper;
 
 import com.mulan.fengwo_backend.model.domain.User;
-import org.apache.ibatis.annotations.Mapper;
-
 import java.util.List;
 
 /**
@@ -13,6 +11,8 @@ import java.util.List;
 */
 public interface UserMapper {
     List<User> getAllUsers();
+    //根据标签搜索用户
+    List<User> getUsersByTags(List<String> tagNameList);
 
     int deleteByPrimaryKey(Long id);
 
