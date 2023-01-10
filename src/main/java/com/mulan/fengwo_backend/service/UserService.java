@@ -1,6 +1,5 @@
 package com.mulan.fengwo_backend.service;
 
-import com.mulan.fengwo_backend.model.domain.Tag;
 import com.mulan.fengwo_backend.model.domain.User;
 
 import java.util.List;

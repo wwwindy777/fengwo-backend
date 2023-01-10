@@ -1,5 +1,7 @@
 package com.mulan.fengwo_backend.service.impl;
 
+import com.mulan.fengwo_backend.common.ErrorCode;
+import com.mulan.fengwo_backend.exceptions.BusinessException;
 import com.mulan.fengwo_backend.mapper.UserMapper;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.service.UserService;
@@ -29,8 +31,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> searchUsersByTags(List<String> tagNameList){
         if (CollectionUtils.isEmpty(tagNameList)){
-            //之后优化为抛出异常
-            return null;
+            throw new BusinessException(ErrorCode.NULL_ERROR,"标签为空");
         }
         List<User> users = userMapper.getUsersByTags(tagNameList);
         return users.stream().map(this::getSafetyUser).collect(Collectors.toList());
