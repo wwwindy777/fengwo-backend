@@ -4,8 +4,22 @@ spring:
     url: jdbc:mysql://localhost:3306/mulantest
     username: root
     password: mulansql
+  session:
+    #session存储方式
+    store-type: redis
+  redis:
+    host: 127.0.0.1
+    port: 6379
+    database: 0
+    #redis的超时时间
+    timeout:
 server:
   port: 8080
+  servlet:
+    session:
+      cookie:
+        domain:
+
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml

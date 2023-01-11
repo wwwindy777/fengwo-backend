@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RestController
@@ -21,11 +22,19 @@ public class UserController {
     @Resource
     UserServiceImpl userService;
     @GetMapping("/search/tags")
-    public BaseResponse<List<User>> searchUserByTags(@RequestParam List<String> tagNameList){
+    public BaseResponse<List<User>> searchUserByTags(@RequestParam List<String> tagNameList,HttpSession session){
         if (CollectionUtils.isEmpty(tagNameList)){
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
         List<User> users = userService.searchUsersByTags(tagNameList);
+        //测试session redis
+        if (session.getAttribute("testSession") == null){
+            session.setAttribute("testSession",users.get(0));
+            System.out.println("创建了session");
+        }else {
+            session.invalidate();
+            System.out.println("移除了session");
+        }
         return ResultUtils.success(users);
     }
 }
