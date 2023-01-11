@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
         safetyUser.setId(user.getId());
         safetyUser.setUserName(user.getUserName());
         safetyUser.setUserAccount(user.getUserAccount());
-        safetyUser.setAvatarUrl("");
+        safetyUser.setAvatarUrl(user.getAvatarUrl());
         safetyUser.setGender(user.getGender());
         safetyUser.setPhone("");
         safetyUser.setEmail("");
