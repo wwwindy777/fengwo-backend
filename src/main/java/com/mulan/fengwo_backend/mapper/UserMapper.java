@@ -1,6 +1,8 @@
 package com.mulan.fengwo_backend.mapper;
 
 import com.mulan.fengwo_backend.model.domain.User;
+import org.apache.ibatis.annotations.Param;
+
 import java.util.List;
 
 /**
@@ -26,4 +28,6 @@ public interface UserMapper {
 
     int updateByPrimaryKey(User record);
 
+    //登陆时调用
+    User loginSearch(@Param("account") String userAccount, @Param("password") String userPassword);
 }
