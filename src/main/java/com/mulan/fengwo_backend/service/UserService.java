@@ -18,11 +18,11 @@ public interface UserService {
 
     int updateUser(User user, User currentUser);
 
-
-    //工具方法
     User getCurrentUser(HttpServletRequest request);
-
+    //工具方法
     boolean isAdmin(User user);
 
     boolean isAdmin(HttpServletRequest request);
+
+    List<User> recommendUsers(int pageNum, int pageSize, HttpServletRequest request);
 }

@@ -1,5 +1,9 @@
 package com.mulan.fengwo_backend.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mulan.fengwo_backend.common.ErrorCode;
 import com.mulan.fengwo_backend.constant.UserConstant;
 import com.mulan.fengwo_backend.exceptions.BusinessException;
@@ -45,6 +49,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 用户脱敏
+     *
      * @param user
      * @return
      */
@@ -159,5 +164,35 @@ public class UserServiceImpl implements UserService {
     public boolean isAdmin(HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
         return user != null && Objects.equals(user.getUserRole(), UserConstant.ADMIN_ROLE);
+    }
+
+    /**
+     * 主页推荐用户列表
+     *
+     * @param pageNum
+     * @param pageSize
+     * @param request
+     * @return
+     */
+    @Override
+    public List<User> recommendUsers(int pageNum, int pageSize, HttpServletRequest request) {
+        User user = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        //如果未登陆，按默认推荐
+        if (user == null) {
+            PageHelper.startPage(pageNum,pageSize);
+            //紧跟着PageHelper.startPage(pageNum,pageSize)的sql语句才被pageHelper起作用
+            List<User> users = userMapper.getAllUsers();
+            PageInfo<User> pageInfo = new PageInfo<>(users);
+            return pageInfo.getList();
+        }
+        //如果登陆按用户标签推荐
+        //1.获取当前用户的标签
+        String userTagString = user.getTag();
+        Gson gson = new Gson();
+        java.lang.reflect.Type userListType = new TypeToken<List<String>>() {
+        }.getType();
+        List<String> userTagList = gson.fromJson(userTagString, userListType);
+        //2.搜索包含其中某个标签的用户（todo 现在还是包含所有标签的用户）
+        return userMapper.getUsersByTags(userTagList);
     }
 }

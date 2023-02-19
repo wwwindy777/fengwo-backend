@@ -15,10 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user")
-@CrossOrigin(origins = {"http://localhost:5173"},allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:5173"}, allowCredentials = "true")
 public class UserController {
     @Resource
     UserServiceImpl userService;
@@ -37,8 +38,8 @@ public class UserController {
 
     @Operation(summary = "获取当前用户")
     @GetMapping("/current")
-    public BaseResponse<User> getCurrentUser(HttpServletRequest request){
-        if (request == null){
+    public BaseResponse<User> getCurrentUser(HttpServletRequest request) {
+        if (request == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
         User cur = userService.getCurrentUser(request);
@@ -55,9 +56,9 @@ public class UserController {
         User currentUser = userService.getCurrentUser(request);
         int res = userService.updateUser(user, currentUser);
         //如果修改成功更新cookie
-        if (res > 0){
+        if (res > 0) {
             User newUser = userService.searchUserById(user.getId());
-            request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE,newUser);
+            request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, newUser);
         }
         return ResultUtils.success(res);
     }
@@ -70,5 +71,17 @@ public class UserController {
         }
         List<User> users = userService.searchUsersByTags(tagNameList);
         return ResultUtils.success(users);
+    }
+
+    @Operation(summary = "主页推荐用户")
+    @GetMapping("/recommend")
+    public BaseResponse<List<User>> recommendUsers(int pageNum,int pageSize,HttpServletRequest request) {
+        if (request == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR);
+        }
+        List<User> users = userService.recommendUsers(pageNum,pageSize,request);
+        //用户脱敏
+        List<User> safetyUsers = users.stream().map(userService::getSafetyUser).collect(Collectors.toList());
+        return ResultUtils.success(safetyUsers);
     }
 }
