@@ -1,12 +1,13 @@
 package com.mulan.fengwo_backend.service;
 
 import com.mulan.fengwo_backend.model.domain.Team;
+import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.dto.TeamQuery;
 
 import java.util.List;
 
 public interface TeamService {
-    boolean addTeam(Team team);
+    Long addTeam(Team team, User addUser);
 
     boolean deleteTeamById(long id);
 

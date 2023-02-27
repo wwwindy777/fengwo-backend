@@ -14,7 +14,7 @@ public interface UserTeamMapper {
 
     int insert(UserTeam record);
 
-    int insertSelective(UserTeam record);
+    boolean insertSelective(UserTeam record);
 
     UserTeam selectByPrimaryKey(Long id);
 
