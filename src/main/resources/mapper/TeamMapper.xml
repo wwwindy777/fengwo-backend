@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mulan.fengwo_backend.mapper.TeamMapper">
+
+    <resultMap id="BaseResultMap" type="com.mulan.fengwo_backend.model.domain.Team">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="description" column="description" jdbcType="VARCHAR"/>
+        <result property="maxNum" column="maxNum" jdbcType="INTEGER"/>
+        <result property="expireTime" column="expireTime" jdbcType="TIMESTAMP"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,name,description,
+        maxNum,expireTime,userId,
+        status,password,createTime,
+        updateTime,isDelete
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from team
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="selectByCondition" resultType="com.mulan.fengwo_backend.model.domain.Team">
+        select
+        <include refid="Base_Column_List"/>
+        from team
+        <where>
+            <if test="id != null and id > 0">
+                id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="description != null and description != ''">
+                and description like "%"#{description}"%"
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from team
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.mulan.fengwo_backend.model.domain.Team"
+            useGeneratedKeys="true">
+        insert into team
+        ( id, name, description
+        , maxNum, expireTime, userId
+        , status, password, createTime
+        , updateTime, isDelete)
+        values ( #{id,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}
+               , #{maxNum,jdbcType=INTEGER}, #{expireTime,jdbcType=TIMESTAMP}, #{userId,jdbcType=BIGINT}
+               , #{status,jdbcType=INTEGER}, #{password,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+               , #{updateTime,jdbcType=TIMESTAMP}, #{isDelete,jdbcType=TINYINT})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.mulan.fengwo_backend.model.domain.Team" useGeneratedKeys="true">
+        insert into team
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null and id > 0">id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="maxNum != null and maxNum > 0">maxNum,</if>
+            <if test="expireTime != null and expireTime != ''">expireTime,</if>
+            <if test="userId != null and userId > 0" >userId,</if>
+            <if test="status != null">status,</if>
+            <if test="password != null and password != ''">password,</if>
+            <if test="createTime != null and createTime != ''">createTime,</if>
+            <if test="updateTime != null and updateTime != ''">updateTime,</if>
+            <if test="isDelete != null">isDelete,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null and id > 0">#{id,jdbcType=BIGINT},</if>
+            <if test="name != null and name != ''">#{name,jdbcType=VARCHAR},</if>
+            <if test="description != null and description != ''">#{description,jdbcType=VARCHAR},</if>
+            <if test="maxNum != null and maxNum > 0">#{maxNum,jdbcType=INTEGER},</if>
+            <if test="expireTime != null and expireTime != ''">#{expireTime,jdbcType=TIMESTAMP},</if>
+            <if test="userId != null and userId > 0">#{userId,jdbcType=BIGINT},</if>
+            <if test="status != null">#{status,jdbcType=INTEGER},</if>
+            <if test="password != null and password != ''">#{password,jdbcType=VARCHAR},</if>
+            <if test="createTime != null and createTime != ''">#{createTime,jdbcType=TIMESTAMP},</if>
+            <if test="updateTime != null and updateTime != ''">#{updateTime,jdbcType=TIMESTAMP},</if>
+            <if test="isDelete != null">#{isDelete,jdbcType=TINYINT},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.mulan.fengwo_backend.model.domain.Team">
+        update team
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="maxNum != null and maxNum > 0">
+                maxNum = #{maxNum,jdbcType=INTEGER},
+            </if>
+            <if test="expireTime != null and expireTime != ''">
+                expireTime = #{expireTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="userId != null and userId > 0">
+                userId = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=INTEGER},
+            </if>
+            <if test="password != null and password != ''">
+                password = #{password,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null and createTime != ''">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null and updateTime != ''">
+                updateTime = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDelete != null">
+                isDelete = #{isDelete,jdbcType=TINYINT},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.mulan.fengwo_backend.model.domain.Team">
+        update team
+        set name        = #{name,jdbcType=VARCHAR},
+            description = #{description,jdbcType=VARCHAR},
+            maxNum      = #{maxNum,jdbcType=INTEGER},
+            expireTime  = #{expireTime,jdbcType=TIMESTAMP},
+            userId      = #{userId,jdbcType=BIGINT},
+            status      = #{status,jdbcType=INTEGER},
+            password    = #{password,jdbcType=VARCHAR},
+            createTime  = #{createTime,jdbcType=TIMESTAMP},
+            updateTime  = #{updateTime,jdbcType=TIMESTAMP},
+            isDelete    = #{isDelete,jdbcType=TINYINT}
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+</mapper>

@@ -73,7 +73,7 @@ public class UserController {
         return ResultUtils.success(users);
     }
 
-    @Operation(summary = "主页推荐用户")
+    @Operation(summary = "主页推荐用户(分页)")
     @GetMapping("/recommend")
     public BaseResponse<List<User>> recommendUsers(int pageNum,int pageSize,HttpServletRequest request) {
         if (request == null) {
