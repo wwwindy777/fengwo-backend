@@ -5,6 +5,7 @@ import com.mulan.fengwo_backend.common.ErrorCode;
 import com.mulan.fengwo_backend.common.ResultUtils;
 import com.mulan.fengwo_backend.constant.UserConstant;
 import com.mulan.fengwo_backend.exceptions.BusinessException;
+import com.mulan.fengwo_backend.model.VO.TeamVO;
 import com.mulan.fengwo_backend.model.domain.Team;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.dto.TeamQuery;
@@ -81,11 +82,11 @@ public class TeamController {
 
     @Operation(summary = "查询符合条件队伍列表(含分页功能)")
     @GetMapping("/list")
-    public BaseResponse<List<Team>> listTeams(TeamQuery teamQuery) {
+    public BaseResponse<List<TeamVO>> listTeams(TeamQuery teamQuery,HttpServletRequest request) {
         if (teamQuery == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        List<Team> teams = teamService.getTeamsByCondition(teamQuery);
+        List<TeamVO> teams = teamService.getTeamsByCondition(teamQuery,request);
         return ResultUtils.success(teams);
     }
 }

@@ -22,7 +22,8 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,userName,userAccount,
+        id
+        ,userName,userAccount,
         avatarUrl,gender,userPassword,
         phone,email,userStatus,
         createTime,updateTime,isDelete,
@@ -51,6 +52,21 @@
         from user
         where userAccount = #{account}
           and userPassword = #{password}
+    </select>
+    <select id="getTeamUserList" resultType="com.mulan.fengwo_backend.model.domain.User">
+        select u.id id
+             , userName
+             , userAccount
+             , avatarUrl
+             , gender
+             , phone
+             , email
+             , userStatus
+             , userRole
+             , tag
+        from user u
+                 left join user_team ut on u.id = ut.userID
+        where ut.teamId = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">

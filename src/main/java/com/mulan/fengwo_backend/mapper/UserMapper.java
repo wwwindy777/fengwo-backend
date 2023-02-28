@@ -30,4 +30,6 @@ public interface UserMapper {
 
     //登陆时调用
     User loginSearch(@Param("account") String userAccount, @Param("password") String userPassword);
+
+    List<User> getTeamUserList(Long id);
 }

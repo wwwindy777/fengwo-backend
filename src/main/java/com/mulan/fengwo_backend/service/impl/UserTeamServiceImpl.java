@@ -16,4 +16,5 @@ public class UserTeamServiceImpl implements UserTeamService {
     public boolean addUserTeam(UserTeam userTeam) {
         return userTeamMapper.insertSelective(userTeam);
     }
+
 }

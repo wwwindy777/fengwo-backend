@@ -41,7 +41,7 @@
                 id = #{id}
             </if>
             <if test="name != null and name != ''">
-                and name = #{name}
+                and name like "%"#{name}"%"
             </if>
             <if test="description != null and description != ''">
                 and description like "%"#{description}"%"

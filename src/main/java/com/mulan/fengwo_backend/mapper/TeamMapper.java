@@ -25,4 +25,5 @@ public interface TeamMapper {
     int updateByPrimaryKey(Team record);
 
     List<Team> selectByCondition(Team team);
+
 }

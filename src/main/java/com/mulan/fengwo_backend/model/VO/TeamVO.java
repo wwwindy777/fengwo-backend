@@ -1,15 +1,17 @@
-package com.mulan.fengwo_backend.model.domain;
+package com.mulan.fengwo_backend.model.VO;
+
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
+import java.util.List;
 
 /**
- * 队伍
+ * 返回前端队伍信息封装类
  * @TableName team
  */
 @Data
-public class Team implements Serializable {
+public class TeamVO implements Serializable {
     /**
      * id
      */
@@ -46,11 +48,6 @@ public class Team implements Serializable {
     private Integer status;
 
     /**
-     * 密码
-     */
-    private String password;
-
-    /**
      * 创建时间
      */
     private Date createTime;
@@ -61,9 +58,14 @@ public class Team implements Serializable {
     private Date updateTime;
 
     /**
-     * 是否删除
+     * 创建队伍的用户
      */
-    private Integer isDelete;
+    private UserVO createUser;
+
+    /**
+     * 入队用户列表
+     */
+    private List<UserVO> userList;
 
     private static final long serialVersionUID = 1L;
 }

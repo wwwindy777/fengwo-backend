@@ -1,9 +1,11 @@
 package com.mulan.fengwo_backend.service;
 
+import com.mulan.fengwo_backend.model.VO.TeamVO;
 import com.mulan.fengwo_backend.model.domain.Team;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.dto.TeamQuery;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 public interface TeamService {
@@ -15,6 +17,6 @@ public interface TeamService {
 
     Team getTeamById(long id);
 
-    List<Team> getTeamsByCondition(TeamQuery teamQuery);
+    List<TeamVO> getTeamsByCondition(TeamQuery teamQuery, HttpServletRequest request);
 
 }

@@ -1,5 +1,6 @@
 package com.mulan.fengwo_backend.service;
 
+import com.mulan.fengwo_backend.model.VO.UserVO;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.request.UserLoginRequest;
 
@@ -25,4 +26,6 @@ public interface UserService {
     boolean isAdmin(HttpServletRequest request);
 
     List<User> recommendUsers(int pageNum, int pageSize, HttpServletRequest request);
+
+    List<UserVO> getTeamUserList(Long id);
 }

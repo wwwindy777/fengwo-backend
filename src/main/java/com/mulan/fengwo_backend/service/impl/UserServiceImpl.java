@@ -8,15 +8,18 @@ import com.mulan.fengwo_backend.common.ErrorCode;
 import com.mulan.fengwo_backend.constant.UserConstant;
 import com.mulan.fengwo_backend.exceptions.BusinessException;
 import com.mulan.fengwo_backend.mapper.UserMapper;
+import com.mulan.fengwo_backend.model.VO.UserVO;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.request.UserLoginRequest;
 import com.mulan.fengwo_backend.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -194,5 +197,22 @@ public class UserServiceImpl implements UserService {
         List<String> userTagList = gson.fromJson(userTagString, userListType);
         //2.搜索包含其中某个标签的用户（todo 现在还是包含所有标签的用户）
         return userMapper.getUsersByTags(userTagList);
+    }
+
+    /**
+     * 根据队伍id查询队伍中的成员
+     * @param id
+     * @return
+     */
+    @Override
+    public List<UserVO> getTeamUserList(Long id) {
+        List<User> teamUserList = userMapper.getTeamUserList(id);
+        List<UserVO> teamUserVOList = new ArrayList<>();
+        for (User user : teamUserList) {
+            UserVO userVO = new UserVO();
+            BeanUtils.copyProperties(this.getSafetyUser(user),userVO);
+            teamUserVOList.add(userVO);
+        }
+        return teamUserVOList;
     }
 }
