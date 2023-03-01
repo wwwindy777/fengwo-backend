@@ -2,6 +2,8 @@ package com.mulan.fengwo_backend.mapper;
 
 import com.mulan.fengwo_backend.model.domain.UserTeam;
 
+import java.util.List;
+
 /**
 * @author wwwwind
 * @description 针对表【user_team(用户队伍关系)】的数据库操作Mapper
@@ -10,7 +12,7 @@ import com.mulan.fengwo_backend.model.domain.UserTeam;
 */
 public interface UserTeamMapper {
 
-    int deleteByPrimaryKey(Long id);
+    boolean deleteByPrimaryKey(Long id);
 
     int insert(UserTeam record);
 
@@ -22,4 +24,11 @@ public interface UserTeamMapper {
 
     int updateByPrimaryKey(UserTeam record);
 
+    List<UserTeam> getTeamsByUserId(Long userId);
+
+    List<UserTeam> getTeamUsersByTeamId(Long teamId);
+
+    List<UserTeam> getUserTeamByCondition(UserTeam userTeam);
+
+    boolean deleteByTeamId(Long teamId);
 }

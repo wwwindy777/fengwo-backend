@@ -5,95 +5,127 @@
 <mapper namespace="com.mulan.fengwo_backend.mapper.UserTeamMapper">
 
     <resultMap id="BaseResultMap" type="com.mulan.fengwo_backend.model.domain.UserTeam">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="userId" column="userId" jdbcType="BIGINT"/>
-            <result property="teamId" column="teamId" jdbcType="BIGINT"/>
-            <result property="joinTime" column="joinTime" jdbcType="TIMESTAMP"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="teamId" column="teamId" jdbcType="BIGINT"/>
+        <result property="joinTime" column="joinTime" jdbcType="TIMESTAMP"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,userId,teamId,
+        id
+        ,userId,teamId,
         joinTime,createTime,updateTime,
         isDelete
     </sql>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List"/>
         from user_team
-        where  id = #{id,jdbcType=BIGINT} 
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="getTeamsByUserId" resultType="com.mulan.fengwo_backend.model.domain.UserTeam">
+        select *
+        from user_team
+        where userId = #{userId}
+    </select>
+    <select id="getTeamUsersByTeamId" resultType="com.mulan.fengwo_backend.model.domain.UserTeam">
+        select *
+        from user_team
+        where teamId = #{teamId}
+    </select>
+    <select id="getUserTeamByCondition" resultType="com.mulan.fengwo_backend.model.domain.UserTeam">
+        select * from user_team
+        <where>
+            <if test="id != null">
+                id = #{id}
+            </if>
+            <if test="userId != null">
+                and userId = #{userId}
+            </if>
+            <if test="teamId != null">
+                 and teamId = #{teamId}
+            </if>
+        </where>
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-        delete from user_team
-        where  id = #{id,jdbcType=BIGINT} 
+        delete
+        from user_team
+        where id = #{id,jdbcType=BIGINT}
     </delete>
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.mulan.fengwo_backend.model.domain.UserTeam" useGeneratedKeys="true">
+    <delete id="deleteByTeamId" parameterType="java.lang.Long">
+        delete
+        from user_team
+        where teamId = #{teamId}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.mulan.fengwo_backend.model.domain.UserTeam"
+            useGeneratedKeys="true">
         insert into user_team
-        ( id,userId,teamId
-        ,joinTime,createTime,updateTime
-        ,isDelete)
-        values (#{id,jdbcType=BIGINT},#{userId,jdbcType=BIGINT},#{teamId,jdbcType=BIGINT}
-        ,#{joinTime,jdbcType=TIMESTAMP},#{createTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP}
-        ,#{isDelete,jdbcType=TINYINT})
+        ( id, userId, teamId
+        , joinTime, createTime, updateTime
+        , isDelete)
+        values ( #{id,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT}, #{teamId,jdbcType=BIGINT}
+               , #{joinTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+               , #{isDelete,jdbcType=TINYINT})
     </insert>
-    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.mulan.fengwo_backend.model.domain.UserTeam" useGeneratedKeys="true">
+    <insert id="insertSelective" keyColumn="id" keyProperty="id"
+            parameterType="com.mulan.fengwo_backend.model.domain.UserTeam" useGeneratedKeys="true">
         insert into user_team
         <trim prefix="(" suffix=")" suffixOverrides=",">
-                <if test="id != null">id,</if>
-                <if test="userId != null">userId,</if>
-                <if test="teamId != null">teamId,</if>
-                <if test="joinTime != null">joinTime,</if>
-                <if test="createTime != null">createTime,</if>
-                <if test="updateTime != null">updateTime,</if>
-                <if test="isDelete != null">isDelete,</if>
+            <if test="id != null">id,</if>
+            <if test="userId != null">userId,</if>
+            <if test="teamId != null">teamId,</if>
+            <if test="joinTime != null">joinTime,</if>
+            <if test="createTime != null">createTime,</if>
+            <if test="updateTime != null">updateTime,</if>
+            <if test="isDelete != null">isDelete,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-                <if test="id != null">#{id,jdbcType=BIGINT},</if>
-                <if test="userId != null">#{userId,jdbcType=BIGINT},</if>
-                <if test="teamId != null">#{teamId,jdbcType=BIGINT},</if>
-                <if test="joinTime != null">#{joinTime,jdbcType=TIMESTAMP},</if>
-                <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
-                <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
-                <if test="isDelete != null">#{isDelete,jdbcType=TINYINT},</if>
+            <if test="id != null">#{id,jdbcType=BIGINT},</if>
+            <if test="userId != null">#{userId,jdbcType=BIGINT},</if>
+            <if test="teamId != null">#{teamId,jdbcType=BIGINT},</if>
+            <if test="joinTime != null">#{joinTime,jdbcType=TIMESTAMP},</if>
+            <if test="createTime != null">#{createTime,jdbcType=TIMESTAMP},</if>
+            <if test="updateTime != null">#{updateTime,jdbcType=TIMESTAMP},</if>
+            <if test="isDelete != null">#{isDelete,jdbcType=TINYINT},</if>
         </trim>
     </insert>
     <update id="updateByPrimaryKeySelective" parameterType="com.mulan.fengwo_backend.model.domain.UserTeam">
         update user_team
         <set>
-                <if test="userId != null">
-                    userId = #{userId,jdbcType=BIGINT},
-                </if>
-                <if test="teamId != null">
-                    teamId = #{teamId,jdbcType=BIGINT},
-                </if>
-                <if test="joinTime != null">
-                    joinTime = #{joinTime,jdbcType=TIMESTAMP},
-                </if>
-                <if test="createTime != null">
-                    createTime = #{createTime,jdbcType=TIMESTAMP},
-                </if>
-                <if test="updateTime != null">
-                    updateTime = #{updateTime,jdbcType=TIMESTAMP},
-                </if>
-                <if test="isDelete != null">
-                    isDelete = #{isDelete,jdbcType=TINYINT},
-                </if>
+            <if test="userId != null">
+                userId = #{userId,jdbcType=BIGINT},
+            </if>
+            <if test="teamId != null">
+                teamId = #{teamId,jdbcType=BIGINT},
+            </if>
+            <if test="joinTime != null">
+                joinTime = #{joinTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                createTime = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                updateTime = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDelete != null">
+                isDelete = #{isDelete,jdbcType=TINYINT},
+            </if>
         </set>
-        where   id = #{id,jdbcType=BIGINT} 
+        where id = #{id,jdbcType=BIGINT}
     </update>
     <update id="updateByPrimaryKey" parameterType="com.mulan.fengwo_backend.model.domain.UserTeam">
         update user_team
-        set 
-            userId =  #{userId,jdbcType=BIGINT},
-            teamId =  #{teamId,jdbcType=BIGINT},
-            joinTime =  #{joinTime,jdbcType=TIMESTAMP},
-            createTime =  #{createTime,jdbcType=TIMESTAMP},
-            updateTime =  #{updateTime,jdbcType=TIMESTAMP},
-            isDelete =  #{isDelete,jdbcType=TINYINT}
-        where   id = #{id,jdbcType=BIGINT} 
+        set userId     = #{userId,jdbcType=BIGINT},
+            teamId     = #{teamId,jdbcType=BIGINT},
+            joinTime   = #{joinTime,jdbcType=TIMESTAMP},
+            createTime = #{createTime,jdbcType=TIMESTAMP},
+            updateTime = #{updateTime,jdbcType=TIMESTAMP},
+            isDelete   = #{isDelete,jdbcType=TINYINT}
+        where id = #{id,jdbcType=BIGINT}
     </update>
 </mapper>

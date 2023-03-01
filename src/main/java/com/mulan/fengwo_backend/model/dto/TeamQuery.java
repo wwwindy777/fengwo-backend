@@ -4,6 +4,8 @@ import com.mulan.fengwo_backend.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 队伍查询封装类
  * 根据前端查询时依赖的参数
@@ -15,6 +17,11 @@ public class TeamQuery extends PageRequest {
      * id
      */
     private Long id;
+
+    /**
+     * id 列表
+     */
+    private List<Long> idList;
 
     /**
      * 队伍名称

@@ -27,15 +27,11 @@ mybatis:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 page helper:
+  # 具体配置待研究
   # 数据库方言 mysql
   helper-dialect: mysql
   # 分页参数合理化
   reasonable: true
-  # 支持通过 Mapper 接口参数来传递分页参数
-  support-methods-arguments: true
-  # 为了支持startPage(Object params)方法，增加了该参数来配置参数映射，
-  # 用于从对象中根据属性名取值
-  params: countSql
 
 # springdoc-openapi项目配置
 springdoc:

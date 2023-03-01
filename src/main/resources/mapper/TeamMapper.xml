@@ -33,12 +33,16 @@
         where id = #{id,jdbcType=BIGINT}
     </select>
     <select id="selectByCondition" resultType="com.mulan.fengwo_backend.model.domain.Team">
-        select
-        <include refid="Base_Column_List"/>
+        select *
         from team
         <where>
             <if test="id != null and id > 0">
                 id = #{id}
+            </if>
+            <if test="idList != null">
+                and id in <foreach collection="idList" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
             </if>
             <if test="name != null and name != ''">
                 and name like "%"#{name}"%"
@@ -53,6 +57,12 @@
                 and status = #{status}
             </if>
         </where>
+    </select>
+
+    <select id="getCreateTeamsByUserId" resultType="com.mulan.fengwo_backend.model.domain.Team">
+        select *
+        from team
+        where userId = #{UserId}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
@@ -81,7 +91,7 @@
             <if test="description != null and description != ''">description,</if>
             <if test="maxNum != null and maxNum > 0">maxNum,</if>
             <if test="expireTime != null">expireTime,</if>
-            <if test="userId != null and userId > 0" >userId,</if>
+            <if test="userId != null and userId > 0">userId,</if>
             <if test="status != null">status,</if>
             <if test="password != null and password != ''">password,</if>
             <if test="createTime != null and createTime != ''">createTime,</if>
