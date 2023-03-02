@@ -94,7 +94,7 @@ public class TeamController {
         return ResultUtils.success(res);
     }
 
-    @Operation(summary = "查询符合条件队伍列表(含分页功能)")
+    @Operation(summary = "查询符合条件队伍列表")
     @GetMapping("/list")
     public BaseResponse<List<TeamVO>> listTeams(TeamQuery teamQuery, HttpServletRequest request) {
         if (teamQuery == null) {
@@ -102,6 +102,7 @@ public class TeamController {
         }
         boolean isAdmin = userService.isAdmin(request);
         List<TeamVO> teams = teamService.getTeamsByCondition(teamQuery, isAdmin);
+        //TODO：拿到队伍后判断当前用户是否加入了队伍，封装到返回类中，可以减少前端查询次数
         return ResultUtils.success(teams);
     }
 

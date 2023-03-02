@@ -217,6 +217,7 @@ public class TeamServiceImpl implements TeamService {
         // 该用户已加入的队伍数量
         long userId = loginUser.getId();
         // 只有一个线程能获取到锁
+        //TODO：这里加的锁比较大，只要想加入队伍都要抢锁，可以改成根据队伍名加锁，将锁名动态改变（锁名可以设一个常量）
         RLock lock = redissonClient.getLock("fengwo:join_team");
         try {
             // 抢到锁并执行
