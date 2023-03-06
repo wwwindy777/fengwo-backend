@@ -1,5 +1,7 @@
 package com.mulan.fengwo_backend.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.mulan.fengwo_backend.common.ErrorCode;
 import com.mulan.fengwo_backend.exceptions.BusinessException;
 import com.mulan.fengwo_backend.mapper.TeamMapper;
@@ -152,15 +154,12 @@ public class TeamServiceImpl implements TeamService {
     public List<TeamVO> getTeamsByCondition(TeamQuery teamQuery, boolean isAdmin) {
         //1. 从请求参数中取出队伍名称等查询条件，如果存在则作为查询条件（在Mapper中实现）
         List<TeamVO> resTeams = new ArrayList<>();
-        //有分页条件时返回分页数据
-        //if (teamQuery.getPageNum() > 0 && teamQuery.getPageSize() > 0) {
-        //    PageHelper.startPage(teamQuery.getPageNum(), teamQuery.getPageSize());
-        //    //紧跟着PageHelper.startPage(pageNum,pageSize)的sql语句才被pageHelper起作用
-        //    teams = teamMapper.selectByCondition(teamQuery);
-        //    PageInfo<Team> pageInfo = new PageInfo<>(teams);
-        //    teams = pageInfo.getList();
-        //}
+        //pageSize=0会查询全部结果，相当于不分页
+        PageHelper.startPage(teamQuery.getPageNum(), teamQuery.getPageSize());
+        //紧跟着PageHelper.startPage(pageNum,pageSize)的sql语句才被pageHelper起作用
         List<Team> teams = teamMapper.selectByCondition(teamQuery);
+        PageInfo<Team> pageInfo = new PageInfo<>(teams);
+        teams = pageInfo.getList();
         if (teams.size() == 0) {
             return null;
         }

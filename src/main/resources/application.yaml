@@ -28,11 +28,14 @@ mybatis:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 page helper:
-  # 具体配置待研究
   # 数据库方言 mysql
   helper-dialect: mysql
-  # 分页参数合理化
-  reasonable: true
+  # 分页参数合理化，pageNum<=0 会查询第一页，pageNum>总页数 会查询最后一页
+  # reasonable: true
+  # 某个地方使用分页后仍然想通过控制参数查询全部的结果，当pageSize=0就会查询出全部的结果
+  page-size-zero: true
+  #默认count查询在传入参数是0时会让上面想实现的逻辑实效，这项也可以单独查询配置
+  default-count: false
 
 # springdoc-openapi项目配置
 springdoc:
