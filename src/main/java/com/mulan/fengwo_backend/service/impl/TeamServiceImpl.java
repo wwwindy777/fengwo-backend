@@ -40,7 +40,7 @@ public class TeamServiceImpl implements TeamService {
     @Resource
     private UserService userService;
     @Resource
-    RedissonClient redissonClient;
+    private RedissonClient redissonClient;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
