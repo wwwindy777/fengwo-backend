@@ -8,11 +8,12 @@ spring:
     #session存储方式
     store-type: redis
   redis:
-    host: 127.0.0.1
+    host: 192.168.8.100
     port: 6379
     database: 0
     #redis的超时时间
-    timeout:
+    timeout: 5000
+    password: mulan7146
 server:
   port: 8080
   servlet:
