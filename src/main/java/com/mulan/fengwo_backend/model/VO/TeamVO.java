@@ -67,5 +67,10 @@ public class TeamVO implements Serializable {
      */
     private List<UserVO> userList;
 
+    /**
+     * 用户是否加入队伍
+     */
+    private boolean hasJoinTeam = false;
+
     private static final long serialVersionUID = 1L;
 }

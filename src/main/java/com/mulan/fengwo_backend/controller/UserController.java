@@ -7,8 +7,10 @@ import com.mulan.fengwo_backend.constant.UserConstant;
 import com.mulan.fengwo_backend.exceptions.BusinessException;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.request.UserLoginRequest;
+import com.mulan.fengwo_backend.model.request.UserRegisterRequest;
 import com.mulan.fengwo_backend.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +25,22 @@ import java.util.stream.Collectors;
 public class UserController {
     @Resource
     UserServiceImpl userService;
+    @Operation(summary = "用户注册")
+    @PostMapping("/register")
+    public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
+        //判断请求是否为空
+        if (userRegisterRequest == null) {
+            throw new BusinessException(ErrorCode.NULL_ERROR);
+        }
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String checkPassword = userRegisterRequest.getCheckPassword();
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+            throw new BusinessException(ErrorCode.NULL_ERROR,"注册信息错误");
+        }
+        Long id = userService.userRegister(userAccount, userPassword, checkPassword);
+        return ResultUtils.success(id);
+    }
 
     @Operation(summary = "用户登陆")
     @PostMapping("/login")

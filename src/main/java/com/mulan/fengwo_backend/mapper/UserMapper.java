@@ -15,12 +15,11 @@ public interface UserMapper {
     List<User> getAllUsers();
     //根据标签搜索用户
     List<User> getUsersByTags(List<String> tagNameList);
-
     int deleteByPrimaryKey(Long id);
 
     int insert(User record);
 
-    int insertSelective(User record);
+    boolean insertSelective(User record);
 
     User selectByPrimaryKey(Long id);
 
@@ -32,4 +31,6 @@ public interface UserMapper {
     User loginSearch(@Param("account") String userAccount, @Param("password") String userPassword);
 
     List<User> getTeamUserList(Long id);
+
+    List<User> getUsersByCondition(User queryUser);
 }

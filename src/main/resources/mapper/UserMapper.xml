@@ -68,6 +68,50 @@
                  left join user_team ut on u.id = ut.userID
         where ut.teamId = #{id}
     </select>
+    <select id="getUsersByCondition" resultType="com.mulan.fengwo_backend.model.domain.User">
+        select * from user
+        <where>
+            <if test="userName != null and userName != ''">
+                userName = #{userName,jdbcType=VARCHAR}
+            </if>
+            <if test="userAccount != null and userAccount != ''">
+                and userAccount = #{userAccount,jdbcType=VARCHAR}
+            </if>
+            <if test="avatarUrl != null and avatarUrl != ''">
+                and avatarUrl = #{avatarUrl,jdbcType=VARCHAR}
+            </if>
+            <if test="gender != null">
+                and gender = #{gender,jdbcType=TINYINT}
+            </if>
+            <if test="userPassword != null and userPassword != ''">
+                and userPassword = #{userPassword,jdbcType=VARCHAR}
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone = #{phone,jdbcType=VARCHAR}
+            </if>
+            <if test="email != null and email != ''">
+                and email = #{email,jdbcType=VARCHAR}
+            </if>
+            <if test="userStatus != null">
+                and userStatus = #{userStatus,jdbcType=INTEGER}
+            </if>
+            <if test="createTime != null">
+                and createTime = #{createTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="updateTime != null">
+                and updateTime = #{updateTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="isDelete != null">
+                and isDelete = #{isDelete,jdbcType=TINYINT}
+            </if>
+            <if test="userRole != null">
+                and userRole = #{userRole,jdbcType=INTEGER}
+            </if>
+            <if test="tag != null and tag != ''">
+                and tag = #{tag,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete

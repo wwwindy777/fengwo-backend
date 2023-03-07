@@ -12,6 +12,7 @@ import com.mulan.fengwo_backend.model.domain.Team;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.domain.UserTeam;
 import com.mulan.fengwo_backend.model.dto.TeamQuery;
+import com.mulan.fengwo_backend.model.request.TeamAddRequest;
 import com.mulan.fengwo_backend.model.request.TeamJoinRequest;
 import com.mulan.fengwo_backend.model.request.TeamQuitRequest;
 import com.mulan.fengwo_backend.model.request.TeamUpdateRequest;
@@ -46,7 +47,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public Long addTeam(Team team, User addUser) {
+    public Long addTeam(TeamAddRequest team, User addUser) {
         //1. 请求参数是否为空？
         if (team == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR, "请求参数为空");
@@ -82,7 +83,7 @@ public class TeamServiceImpl implements TeamService {
             }
         }
         //   6. 超时时间 > 当前时间
-        if (new Date().after(team.getExpireTime())) {
+        if (team.getExpireTime() != null && new Date().after(team.getExpireTime())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "已超时");
         }
         //   7. 校验用户最多创建 5 个队：此处如果用户同一时间点击多次可能创建多个队伍。TODO：加锁
@@ -91,23 +92,24 @@ public class TeamServiceImpl implements TeamService {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "最多创建5个队伍");
         }
         //4. 插入队伍信息到队伍表，此处要使用事务
-        team.setId(null);
-        team.setUserId(addUser.getId());
-        boolean resAddTeam = teamMapper.insertSelective(team);
-        Long teamId = team.getId();
-        if (!resAddTeam || teamId == null) {
+        Team newTeam = new Team();
+        BeanUtils.copyProperties(team, newTeam);
+        newTeam.setUserId(addUser.getId());
+        boolean resAddTeam = teamMapper.insertSelective(newTeam);
+        Long newTeamId = newTeam.getId();
+        if (!resAddTeam || newTeamId == null) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加队伍失败");
         }
         //5. 插入用户  => 队伍关系到关系表，此处会嵌套其他的service，尽量不要直接使用Mapper
         UserTeam userTeam = new UserTeam();
         userTeam.setUserId(addUser.getId());
-        userTeam.setTeamId(team.getId());
+        userTeam.setTeamId(newTeamId);
         userTeam.setJoinTime(new Date());
         boolean resAddUserTeam = userTeamService.addUserTeam(userTeam);
         if (!resAddUserTeam) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加用户队伍关系失败");
         }
-        return teamId;
+        return newTeamId;
     }
 
     @Override
@@ -150,11 +152,20 @@ public class TeamServiceImpl implements TeamService {
         return res;
     }
 
+
+    /**
+     * 根据条件查询
+     * 功能非常多，很多复用的逻辑
+     *
+     * @param teamQuery
+     * @param isAdmin
+     * @return
+     */
     @Override
-    public List<TeamVO> getTeamsByCondition(TeamQuery teamQuery, boolean isAdmin) {
+    public List<TeamVO> getTeamsByCondition(TeamQuery teamQuery, boolean isAdmin, Optional<Long> userId) {
         //1. 从请求参数中取出队伍名称等查询条件，如果存在则作为查询条件（在Mapper中实现）
         List<TeamVO> resTeams = new ArrayList<>();
-        //pageSize=0会查询全部结果，相当于不分页
+        //pageSize=0会查询全部结果，相当于不分页，注意关闭默认count功能
         PageHelper.startPage(teamQuery.getPageNum(), teamQuery.getPageSize());
         //紧跟着PageHelper.startPage(pageNum,pageSize)的sql语句才被pageHelper起作用
         List<Team> teams = teamMapper.selectByCondition(teamQuery);
@@ -166,6 +177,7 @@ public class TeamServiceImpl implements TeamService {
         for (Team team : teams) {
             TeamVO teamVO = new TeamVO();
             BeanUtils.copyProperties(team, teamVO);
+            Long teamId = teamVO.getId();
             //2. 不展示已过期的队伍（根据过期时间筛选）
             Date expireTime = teamVO.getExpireTime();
             if (expireTime != null && new Date().after(expireTime)) {
@@ -182,12 +194,27 @@ public class TeamServiceImpl implements TeamService {
                 BeanUtils.copyProperties(userService.getSafetyUser(createUser), createUserVO);
                 teamVO.setCreateUser(createUserVO);
             }
-            //6. **关联查询已加入队伍的用户信息（可能会很耗费性能，建议大家用自己写 SQL 的方式实现）**
-            List<UserVO> userList = userService.getTeamUserList(teamVO.getId());
+            //6. 关联查询已加入队伍的用户信息
+            List<UserVO> userList = userService.getTeamUserList(teamId);
             teamVO.setUserList(userList);
+            //7. 是否已经加入队伍（减少前端查询次数）
+            if (teamVO.getUserId() != null || userId.isPresent()) {
+                UserTeam queryUserTeam = new UserTeam();
+                queryUserTeam.setTeamId(teamId);
+                queryUserTeam.setUserId(userId.orElse(teamVO.getUserId()));
+                List<UserTeam> hasJoinTeam = userTeamService.getUserTeamByCondition(queryUserTeam);
+                if (hasJoinTeam.size() == 1) {
+                    teamVO.setHasJoinTeam(true);
+                }
+            }
             resTeams.add(teamVO);
         }
         return resTeams;
+    }
+
+    @Override
+    public List<TeamVO> getTeamsByCondition(TeamQuery teamQuery, boolean isAdmin) {
+        return getTeamsByCondition(teamQuery, isAdmin, Optional.empty());
     }
 
     @Override

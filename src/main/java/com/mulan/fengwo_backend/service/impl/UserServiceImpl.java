@@ -12,19 +12,26 @@ import com.mulan.fengwo_backend.model.VO.UserVO;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.request.UserLoginRequest;
 import com.mulan.fengwo_backend.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.mulan.fengwo_backend.constant.UserConstant.SALT;
+
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Resource
@@ -91,17 +98,30 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        //todo 判断是否存在特殊字符
-        //todo 密码加密
-        //查询用户是否存在
-        User user = userMapper.loginSearch(userAccount, userPassword);
-        if (user == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        if (userAccount.length() < 4) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
         }
+        if (userPassword.length() < 8) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码错误");
+        }
+        //判断是否存在特殊字符
+        String validPattern = "[\\p{Punct}\\p{Space}\\p{Cntrl}]";
+        Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
+        if (matcher.find()){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
+        }
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        //查询用户是否存在
+        User user = userMapper.loginSearch(userAccount, encryptPassword);
+        if (user == null) {
+            log.info("user login failed, userAccount cannot match userPassword");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"登陆失败");
+        }
+        User safetyUser = getSafetyUser(user);
         //保存用户登陆态
-        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, user);
+        request.getSession().setAttribute(UserConstant.USER_LOGIN_STATE, safetyUser);
         //用户脱敏
-        return getSafetyUser(user);
+        return safetyUser;
     }
 
 
@@ -214,5 +234,47 @@ public class UserServiceImpl implements UserService {
             teamUserVOList.add(userVO);
         }
         return teamUserVOList;
+    }
+
+    @Override
+    public Long userRegister(String userAccount, String userPassword, String checkPassword) {
+        // 1. 校验
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "注册信息错误");
+        }
+        if (userAccount.length() < 4) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号过短");
+        }
+        if (userPassword.length() < 8 || checkPassword.length() < 8) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码过短");
+        }
+        // 账户不能包含特殊字符
+        String validPattern = "[\\p{Punct}\\p{Space}\\p{Cntrl}]";
+        Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
+        if (matcher.find()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号包含特殊字符");
+        }
+        // 密码和校验密码相同
+        if (!userPassword.equals(checkPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"较验密码不一致");
+        }
+        // 账户不能重复查询
+        User queryUser = new User();
+        queryUser.setUserAccount(userAccount);
+        List<User> users = userMapper.getUsersByCondition(queryUser);
+        if (users.size() > 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
+        }
+        // 2. 加密
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+        // 3. 插入数据
+        User user = new User();
+        user.setUserAccount(userAccount);
+        user.setUserPassword(encryptPassword);
+        boolean saveResult = userMapper.insertSelective(user);
+        if (!saveResult) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"注册失败");
+        }
+        return user.getId();
     }
 }

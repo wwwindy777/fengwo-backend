@@ -11,6 +11,7 @@ import com.mulan.fengwo_backend.model.domain.Team;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.domain.UserTeam;
 import com.mulan.fengwo_backend.model.dto.TeamQuery;
+import com.mulan.fengwo_backend.model.request.TeamAddRequest;
 import com.mulan.fengwo_backend.model.request.TeamJoinRequest;
 import com.mulan.fengwo_backend.model.request.TeamQuitRequest;
 import com.mulan.fengwo_backend.model.request.TeamUpdateRequest;
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,18 +41,17 @@ public class TeamController {
     private UserTeamService userTeamService;
 
     /**
-     * @param team
+     * @param teamAddRequest
      * @return 返回插入成功的id，要是Long类型，自己写的Integer
      */
     @Operation(summary = "添加队伍")
     @PostMapping("/add")
-    //TODO:添加队伍的请求包含很多没用的参数，再封装成一个类
-    public BaseResponse<Long> addTeam(@RequestBody Team team, HttpServletRequest request) {
-        if (team == null) {
+    public BaseResponse<Long> addTeam(@RequestBody TeamAddRequest teamAddRequest, HttpServletRequest request) {
+        if (teamAddRequest == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
         User addUser = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
-        Long res = teamService.addTeam(team, addUser);
+        Long res = teamService.addTeam(teamAddRequest, addUser);
         //根据mybatis的获取自增主键值策略，插入成功后会把自动生成的主键值赋给原对象
         return ResultUtils.success(res);
     }
@@ -101,8 +102,8 @@ public class TeamController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         boolean isAdmin = userService.isAdmin(request);
-        List<TeamVO> teams = teamService.getTeamsByCondition(teamQuery, isAdmin);
-        //TODO：拿到队伍后判断当前用户是否加入了队伍，封装到返回类中，可以减少前端查询次数
+        Long userId = userService.getCurrentUser(request).getId();
+        List<TeamVO> teams = teamService.getTeamsByCondition(teamQuery, isAdmin, Optional.of(userId));
         return ResultUtils.success(teams);
     }
 
@@ -132,8 +133,8 @@ public class TeamController {
         if (teamQuery == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getCurrentUser(request);
-        teamQuery.setUserId(loginUser.getId());
+        Long loginUserId = userService.getCurrentUser(request).getId();
+        teamQuery.setUserId(loginUserId);
         List<TeamVO> teamList = teamService.getTeamsByCondition(teamQuery, true);
         return ResultUtils.success(teamList);
     }
@@ -156,7 +157,7 @@ public class TeamController {
                 .collect(Collectors.groupingBy(UserTeam::getTeamId));
         List<Long> idList = new ArrayList<>(listMap.keySet());
         teamQuery.setIdList(idList);
-        List<TeamVO> teamList = teamService.getTeamsByCondition(teamQuery,true);
+        List<TeamVO> teamList = teamService.getTeamsByCondition(teamQuery,true,Optional.empty());
         return ResultUtils.success(teamList);
     }
 }

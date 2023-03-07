@@ -28,4 +28,6 @@ public interface UserService {
     List<User> recommendUsers(int pageNum, int pageSize, HttpServletRequest request);
 
     List<UserVO> getTeamUserList(Long id);
+
+    Long userRegister(String userAccount, String userPassword, String checkPassword);
 }
