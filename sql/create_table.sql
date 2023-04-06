@@ -13,7 +13,7 @@ create table user
     createTime   datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime   datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete     tinyint  default 0                 not null comment '是否删除（逻辑）',
-    userRole     int                                not null comment '用户权限',
+    userRole     int      default 0                 not null comment '用户权限',
     tag          varchar(1024)                      null comment '标签列表',
     constraint userAccount_index
         unique (userAccount)

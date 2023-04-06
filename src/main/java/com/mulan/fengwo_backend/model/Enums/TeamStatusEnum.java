@@ -1,5 +1,9 @@
 package com.mulan.fengwo_backend.model.Enums;
 
+/**
+ * 队伍状态枚举
+ * @author mulan
+ */
 public enum TeamStatusEnum {
     PUBLIC(0,"公开"),
     PRIVATE(1,"私有"),

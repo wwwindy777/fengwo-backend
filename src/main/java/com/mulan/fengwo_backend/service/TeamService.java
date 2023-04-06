@@ -22,6 +22,7 @@ public interface TeamService {
     Team getTeamById(Long teamId);
 
     List<TeamVO> getTeamsByCondition(TeamQuery teamQuery, boolean isAdmin, Optional<Long> userId);
+
     List<TeamVO> getTeamsByCondition(TeamQuery teamQuery, boolean isAdmin);
 
     boolean joinTeam(TeamJoinRequest teamJoinRequest, HttpServletRequest request);

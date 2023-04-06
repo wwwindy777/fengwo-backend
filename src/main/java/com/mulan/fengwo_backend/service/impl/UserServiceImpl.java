@@ -99,23 +99,23 @@ public class UserServiceImpl implements UserService {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         if (userAccount.length() < 4) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
         }
         if (userPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"密码错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
         }
         //判断是否存在特殊字符
         String validPattern = "[\\p{Punct}\\p{Space}\\p{Cntrl}]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
-        if (matcher.find()){
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号错误");
+        if (matcher.find()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号错误");
         }
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         //查询用户是否存在
         User user = userMapper.loginSearch(userAccount, encryptPassword);
         if (user == null) {
             log.info("user login failed, userAccount cannot match userPassword");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"登陆失败");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "登陆失败");
         }
         User safetyUser = getSafetyUser(user);
         //保存用户登陆态
@@ -202,7 +202,7 @@ public class UserServiceImpl implements UserService {
         User user = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
         //如果未登陆，按默认推荐
         if (user == null) {
-            PageHelper.startPage(pageNum,pageSize);
+            PageHelper.startPage(pageNum, pageSize);
             //紧跟着PageHelper.startPage(pageNum,pageSize)的sql语句才被pageHelper起作用
             List<User> users = userMapper.getAllUsers();
             PageInfo<User> pageInfo = new PageInfo<>(users);
@@ -221,6 +221,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 根据队伍id查询队伍中的成员
+     *
      * @param id
      * @return
      */
@@ -230,12 +231,20 @@ public class UserServiceImpl implements UserService {
         List<UserVO> teamUserVOList = new ArrayList<>();
         for (User user : teamUserList) {
             UserVO userVO = new UserVO();
-            BeanUtils.copyProperties(this.getSafetyUser(user),userVO);
+            BeanUtils.copyProperties(this.getSafetyUser(user), userVO);
             teamUserVOList.add(userVO);
         }
         return teamUserVOList;
     }
 
+    /**
+     * 用户注册
+     *
+     * @param userAccount
+     * @param userPassword
+     * @param checkPassword
+     * @return
+     */
     @Override
     public Long userRegister(String userAccount, String userPassword, String checkPassword) {
         // 1. 校验
@@ -252,11 +261,11 @@ public class UserServiceImpl implements UserService {
         String validPattern = "[\\p{Punct}\\p{Space}\\p{Cntrl}]";
         Matcher matcher = Pattern.compile(validPattern).matcher(userAccount);
         if (matcher.find()) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"账号包含特殊字符");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号包含特殊字符");
         }
         // 密码和校验密码相同
         if (!userPassword.equals(checkPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR,"较验密码不一致");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "较验密码不一致");
         }
         // 账户不能重复查询
         User queryUser = new User();
@@ -273,7 +282,7 @@ public class UserServiceImpl implements UserService {
         user.setUserPassword(encryptPassword);
         boolean saveResult = userMapper.insertSelective(user);
         if (!saveResult) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"注册失败");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败");
         }
         return user.getId();
     }

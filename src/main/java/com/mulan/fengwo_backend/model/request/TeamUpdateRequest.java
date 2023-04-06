@@ -5,8 +5,13 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * 更新队伍请求
+ * @author mulan
+ */
 @Data
 public class TeamUpdateRequest implements Serializable {
+    private static final long serialVersionUID = 4465509363973339779L;
     /**
      * id
      */

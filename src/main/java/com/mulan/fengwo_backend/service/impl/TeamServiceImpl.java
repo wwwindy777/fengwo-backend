@@ -45,6 +45,13 @@ public class TeamServiceImpl implements TeamService {
     @Resource
     private RedissonClient redissonClient;
 
+    /**
+     * 添加队伍
+     *
+     * @param team
+     * @param addUser
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Long addTeam(TeamAddRequest team, User addUser) {
@@ -112,6 +119,13 @@ public class TeamServiceImpl implements TeamService {
         return newTeamId;
     }
 
+    /**
+     * 更新队伍
+     *
+     * @param teamUpdateRequest
+     * @param request
+     * @return
+     */
     @Override
     public boolean updateTeam(TeamUpdateRequest teamUpdateRequest, HttpServletRequest request) {
         User loginUser = userService.getCurrentUser(request);
@@ -140,6 +154,12 @@ public class TeamServiceImpl implements TeamService {
         return teamMapper.updateByPrimaryKeySelective(updateTeam);
     }
 
+    /**
+     * 根据id查询队伍
+     *
+     * @param teamId
+     * @return
+     */
     @Override
     public Team getTeamById(Long teamId) {
         if (teamId == null || teamId <= 0) {
@@ -183,7 +203,7 @@ public class TeamServiceImpl implements TeamService {
             if (expireTime != null && new Date().after(expireTime)) {
                 continue;
             }
-            //4. **只有管理员才能查看加密还有非公开的房间**
+            //4. 只有管理员才能查看加密还有非公开的房间
             if (!isAdmin && teamVO.getStatus() == 1) {
                 continue;
             }
@@ -212,11 +232,25 @@ public class TeamServiceImpl implements TeamService {
         return resTeams;
     }
 
+    /**
+     * 条件查询重载，减少传参
+     *
+     * @param teamQuery
+     * @param isAdmin
+     * @return
+     */
     @Override
     public List<TeamVO> getTeamsByCondition(TeamQuery teamQuery, boolean isAdmin) {
         return getTeamsByCondition(teamQuery, isAdmin, Optional.empty());
     }
 
+    /**
+     * 加入队伍
+     *
+     * @param teamJoinRequest
+     * @param request
+     * @return
+     */
     @Override
     public boolean joinTeam(TeamJoinRequest teamJoinRequest, HttpServletRequest request) {
         User loginUser = userService.getCurrentUser(request);
@@ -287,6 +321,13 @@ public class TeamServiceImpl implements TeamService {
         }
     }
 
+    /**
+     * 退出队伍
+     *
+     * @param teamQuitRequest
+     * @param request
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean quitTeam(TeamQuitRequest teamQuitRequest, HttpServletRequest request) {
@@ -336,6 +377,13 @@ public class TeamServiceImpl implements TeamService {
         return userTeamService.delete(userTeams.get(0).getId());
     }
 
+    /**
+     * 删除队伍
+     *
+     * @param id
+     * @param request
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteTeam(long id, HttpServletRequest request) {

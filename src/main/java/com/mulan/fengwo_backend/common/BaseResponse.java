@@ -3,8 +3,15 @@ package com.mulan.fengwo_backend.common;
 import lombok.Data;
 
 import java.io.Serializable;
+
+/**
+ * 前端通用返回包装类
+ * @author mulan
+ * @param <T>
+ */
 @Data
 public class BaseResponse<T> implements Serializable {
+    private static final long serialVersionUID = 1149614098852289691L;
     private int code;
     private T Data;
     private String message;

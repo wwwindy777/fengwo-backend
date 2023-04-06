@@ -14,12 +14,16 @@ spring:
     #redis的超时时间
     timeout: 5000
     password: mulan7146
+  # 支持 swagger3
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
 server:
   port: 8080
   servlet:
     session:
       cookie:
-        domain:
+        domain: #cookie跨域设置
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
@@ -37,20 +41,23 @@ page helper:
   #默认count查询在传入参数是0时会让上面想实现的逻辑实效，这项也可以单独查询配置
   default-count: false
 
-# springdoc-openapi项目配置
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    tags-sorter: alpha
-    operations-sorter: alpha
-  api-docs:
-    path: /v3/api-docs
-  group-configs:
-    - group: 'default'
-      paths-to-match: '/**'
-      packages-to-scan: com.mulan.fengwo_backend.controller
-# knife4j的增强配置，不需要增强可以不配
-knife4j:
-  enable: true
-  setting:
-    language: zh_cn
+
+
+
+## springdoc-openapi项目配置
+#springdoc:
+#  swagger-ui:
+#    path: /swagger-ui.html
+#    tags-sorter: alpha
+#    operations-sorter: alpha
+#  api-docs:
+#    path: /v3/api-docs
+#  group-configs:
+#    - group: 'default'
+#      paths-to-match: '/**'
+#      packages-to-scan: com.mulan.fengwo_backend.controller
+## knife4j的增强配置，不需要增强可以不配
+#knife4j:
+#  enable: true
+#  setting:
+#    language: zh_cn

@@ -1,5 +1,9 @@
 package com.mulan.fengwo_backend.constant;
 
+/**
+ * 用户常量
+ * @author mulan
+ */
 public interface UserConstant {
     String USER_LOGIN_STATE = "userLoginState";
 

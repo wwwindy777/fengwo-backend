@@ -20,6 +20,7 @@ public interface UserService {
     int updateUser(User user, User currentUser);
 
     User getCurrentUser(HttpServletRequest request);
+
     //工具方法
     boolean isAdmin(User user);
 

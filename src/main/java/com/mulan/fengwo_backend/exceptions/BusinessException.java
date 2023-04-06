@@ -2,7 +2,12 @@ package com.mulan.fengwo_backend.exceptions;
 
 import com.mulan.fengwo_backend.common.ErrorCode;
 
+/**
+ * 自定义异常
+ * @author mulan
+ */
 public class BusinessException extends RuntimeException{
+    private static final long serialVersionUID = 2013098325598919790L;
     private final int code;
     private final String description;
 

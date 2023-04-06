@@ -40,10 +40,6 @@ public class TeamController {
     @Resource
     private UserTeamService userTeamService;
 
-    /**
-     * @param teamAddRequest
-     * @return 返回插入成功的id，要是Long类型，自己写的Integer
-     */
     @Operation(summary = "添加队伍")
     @PostMapping("/add")
     public BaseResponse<Long> addTeam(@RequestBody TeamAddRequest teamAddRequest, HttpServletRequest request) {

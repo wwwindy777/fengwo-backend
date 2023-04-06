@@ -15,6 +15,11 @@ public class UserTeamServiceImpl implements UserTeamService {
     @Resource
     private UserTeamMapper userTeamMapper;
 
+    /**
+     * 条件查询
+     * @param userTeam
+     * @return
+     */
     @Override
     public List<UserTeam> getUserTeamByCondition(UserTeam userTeam) {
         List<UserTeam> userTeams = userTeamMapper.getUserTeamByCondition(userTeam);

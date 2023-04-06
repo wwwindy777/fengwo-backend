@@ -1,6 +1,5 @@
 package com.mulan.fengwo_backend.service;
 
-import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.service.impl.UserServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;

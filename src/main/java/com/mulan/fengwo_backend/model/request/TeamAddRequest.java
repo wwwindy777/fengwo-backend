@@ -4,8 +4,14 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+
+/**
+ * 添加队伍请求
+ * @author mulan
+ */
 @Data
 public class TeamAddRequest implements Serializable {
+    private static final long serialVersionUID = -1415168957296873554L;
     /**
      * 队伍名称
      */
