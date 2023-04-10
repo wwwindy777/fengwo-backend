@@ -3,6 +3,7 @@ package com.mulan.fengwo_backend.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.mulan.fengwo_backend.common.ErrorCode;
+import com.mulan.fengwo_backend.constant.RedisConstant;
 import com.mulan.fengwo_backend.exceptions.BusinessException;
 import com.mulan.fengwo_backend.mapper.TeamMapper;
 import com.mulan.fengwo_backend.model.Enums.TeamStatusEnum;
@@ -85,7 +86,7 @@ public class TeamServiceImpl implements TeamService {
         //   5. 如果 status 是加密状态，一定要有密码，且密码 <= 32
         String password = team.getPassword();
         if (statusEnum.equals(TeamStatusEnum.LOCKED)) {
-            if (StringUtils.isBlank(password) && password.length() > 32) {
+            if (StringUtils.isBlank(password) || password.length() > 32) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码设置错误");
             }
         }
@@ -93,30 +94,44 @@ public class TeamServiceImpl implements TeamService {
         if (team.getExpireTime() != null && new Date().after(team.getExpireTime())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "已超时");
         }
-        //   7. 校验用户最多创建 5 个队：此处如果用户同一时间点击多次可能创建多个队伍。TODO：加锁
-        int size = teamMapper.getCreateTeamsByUserId(addUser.getId()).size();
-        if (size >= 5) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "最多创建5个队伍");
+        //   7. 校验用户最多创建 5 个队：加锁防止同一时间点击多次创建多个队伍
+        Long addUserId = addUser.getId();
+        RLock addTeamLock = redissonClient.getLock(RedisConstant.ADD_TEAM_LOCK + addUserId);
+        try {
+            if (addTeamLock.tryLock(0, -1, TimeUnit.SECONDS)) {
+                Thread.sleep(60000);
+                int size = teamMapper.getCreateTeamsByUserId(addUserId).size();
+                if (size >= 5) {
+                    throw new BusinessException(ErrorCode.PARAMS_ERROR, "最多创建5个队伍");
+                }
+                //4. 插入队伍信息到队伍表，此处要使用事务
+                Team newTeam = new Team();
+                BeanUtils.copyProperties(team, newTeam);
+                newTeam.setUserId(addUserId);
+                boolean resAddTeam = teamMapper.insertSelective(newTeam);
+                Long newTeamId = newTeam.getId();
+                if (!resAddTeam || newTeamId == null) {
+                    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加队伍失败");
+                }
+                //5. 插入用户  => 队伍关系到关系表，此处会嵌套其他的service，尽量不要直接使用Mapper
+                UserTeam userTeam = new UserTeam();
+                userTeam.setUserId(addUserId);
+                userTeam.setTeamId(newTeamId);
+                userTeam.setJoinTime(new Date());
+                boolean resAddUserTeam = userTeamService.addUserTeam(userTeam);
+                if (!resAddUserTeam) {
+                    throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加用户队伍关系失败");
+                }
+                return newTeamId;
+            }
+        } catch (InterruptedException e) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "请勿重复操作");
+        } finally {
+            if (addTeamLock.isHeldByCurrentThread()) {
+                addTeamLock.unlock();
+            }
         }
-        //4. 插入队伍信息到队伍表，此处要使用事务
-        Team newTeam = new Team();
-        BeanUtils.copyProperties(team, newTeam);
-        newTeam.setUserId(addUser.getId());
-        boolean resAddTeam = teamMapper.insertSelective(newTeam);
-        Long newTeamId = newTeam.getId();
-        if (!resAddTeam || newTeamId == null) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加队伍失败");
-        }
-        //5. 插入用户  => 队伍关系到关系表，此处会嵌套其他的service，尽量不要直接使用Mapper
-        UserTeam userTeam = new UserTeam();
-        userTeam.setUserId(addUser.getId());
-        userTeam.setTeamId(newTeamId);
-        userTeam.setJoinTime(new Date());
-        boolean resAddUserTeam = userTeamService.addUserTeam(userTeam);
-        if (!resAddUserTeam) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加用户队伍关系失败");
-        }
-        return newTeamId;
+        return null;
     }
 
     /**
@@ -277,8 +292,7 @@ public class TeamServiceImpl implements TeamService {
         // 该用户已加入的队伍数量
         long userId = loginUser.getId();
         // 只有一个线程能获取到锁
-        //TODO：这里加的锁比较大，只要想加入队伍都要抢锁，可以改成根据队伍名加锁，将锁名动态改变（锁名可以设一个常量）
-        RLock lock = redissonClient.getLock("fengwo:join_team");
+        RLock lock = redissonClient.getLock(RedisConstant.JOIN_TEAM_LOCK + teamId);
         try {
             // 抢到锁并执行
             while (true) {
@@ -310,7 +324,6 @@ public class TeamServiceImpl implements TeamService {
                 }
             }
         } catch (InterruptedException e) {
-            log.error("doCacheRecommendUser error", e);
             return false;
         } finally {
             // 只能释放自己的锁

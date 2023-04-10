@@ -18,6 +18,9 @@ spring:
   mvc:
     path match:
       matching-strategy: ant_path_matcher
+  devtools:
+    restart:
+      enabled: true
 server:
   port: 8080
   servlet:
@@ -40,7 +43,6 @@ page helper:
   page-size-zero: true
   #默认count查询在传入参数是0时会让上面想实现的逻辑实效，这项也可以单独查询配置
   default-count: false
-
 
 
 
