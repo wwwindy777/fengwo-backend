@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class UserController {
     @Resource
     UserServiceImpl userService;
+
     @Operation(summary = "用户注册")
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
@@ -36,7 +37,7 @@ public class UserController {
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            throw new BusinessException(ErrorCode.NULL_ERROR,"注册信息错误");
+            throw new BusinessException(ErrorCode.NULL_ERROR, "注册信息错误");
         }
         Long id = userService.userRegister(userAccount, userPassword, checkPassword);
         return ResultUtils.success(id);
@@ -83,21 +84,21 @@ public class UserController {
 
     @Operation(summary = "按标签搜索用户（匹配所有标签）")
     @GetMapping("/search/tags")
-    public BaseResponse<List<User>> searchUserByTags(@RequestParam List<String> tagNameList) {
+    public BaseResponse<List<User>> searchUserByTags(@RequestParam List<String> tagNameList, int pageNum, int pageSize) {
         if (CollectionUtils.isEmpty(tagNameList)) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
-        List<User> users = userService.searchUsersByTags(tagNameList);
+        List<User> users = userService.searchUsersByTags(pageNum, pageSize, tagNameList);
         return ResultUtils.success(users);
     }
 
     @Operation(summary = "主页推荐用户(分页)")
     @GetMapping("/recommend")
-    public BaseResponse<List<User>> recommendUsers(int pageNum,int pageSize,HttpServletRequest request) {
+    public BaseResponse<List<User>> recommendUsers(int pageNum, int pageSize, HttpServletRequest request) {
         if (request == null) {
             throw new BusinessException(ErrorCode.NULL_ERROR);
         }
-        List<User> users = userService.recommendUsers(pageNum,pageSize,request);
+        List<User> users = userService.recommendUsers(pageNum, pageSize, request);
         //用户脱敏
         List<User> safetyUsers = users.stream().map(userService::getSafetyUser).collect(Collectors.toList());
         return ResultUtils.success(safetyUsers);

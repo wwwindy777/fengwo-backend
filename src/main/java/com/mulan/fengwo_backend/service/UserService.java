@@ -11,7 +11,8 @@ public interface UserService {
     //操作数据库方法
     User searchUserById(Long id);
 
-    List<User> searchUsersByTags(List<String> tagNameList);
+    List<User> searchUsersByTags(int pageNum, int pageSize,List<String> tagNameList);
+    List<User> searchUsersByMatchingTags(int pageNum, int pageSize,List<String> tagNameList);
 
     User getSafetyUser(User user);
 
@@ -28,7 +29,7 @@ public interface UserService {
 
     List<User> recommendUsers(int pageNum, int pageSize, HttpServletRequest request);
 
-    List<UserVO> getTeamUserList(Long id);
+    List<UserVO> getTeamUserList(Long teamId);
 
     Long userRegister(String userAccount, String userPassword, String checkPassword);
 }

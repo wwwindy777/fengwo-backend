@@ -15,6 +15,7 @@ public interface UserMapper {
     List<User> getAllUsers();
     //根据标签搜索用户
     List<User> getUsersByTags(List<String> tagNameList);
+    List<User> getUsersByMatchingTags(List<String> tagNameList);
     int deleteByPrimaryKey(Long id);
 
     int insert(User record);
@@ -33,4 +34,5 @@ public interface UserMapper {
     List<User> getTeamUserList(Long id);
 
     List<User> getUsersByCondition(User queryUser);
+
 }

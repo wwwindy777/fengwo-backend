@@ -99,7 +99,8 @@ public class TeamServiceImpl implements TeamService {
         RLock addTeamLock = redissonClient.getLock(RedisConstant.ADD_TEAM_LOCK + addUserId);
         try {
             if (addTeamLock.tryLock(0, -1, TimeUnit.SECONDS)) {
-                Thread.sleep(60000);
+                //测试看门狗
+                //Thread.sleep(60000);
                 int size = teamMapper.getCreateTeamsByUserId(addUserId).size();
                 if (size >= 5) {
                     throw new BusinessException(ErrorCode.PARAMS_ERROR, "最多创建5个队伍");
@@ -125,13 +126,13 @@ public class TeamServiceImpl implements TeamService {
                 return newTeamId;
             }
         } catch (InterruptedException e) {
-            throw new BusinessException(ErrorCode.OPERATION_ERROR, "请勿重复操作");
+            log.error(e.getMessage());
         } finally {
             if (addTeamLock.isHeldByCurrentThread()) {
                 addTeamLock.unlock();
             }
         }
-        return null;
+        throw new BusinessException(ErrorCode.OPERATION_ERROR, "请勿重复操作");
     }
 
     /**

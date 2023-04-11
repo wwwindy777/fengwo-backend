@@ -47,6 +47,12 @@
             '%${tag}%'
         </foreach>
     </select>
+    <select id="getUsersByMatchingTags" resultType="com.mulan.fengwo_backend.model.domain.User">
+        select * from user where tag like
+        <foreach collection="list" separator="or tag like" item="tag">
+            '%${tag}%'
+        </foreach>
+    </select>
     <select id="loginSearch" resultMap="BaseResultMap">
         select *
         from user

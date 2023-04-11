@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mulan.fengwo_backend.common.ErrorCode;
+import com.mulan.fengwo_backend.constant.RedisConstant;
 import com.mulan.fengwo_backend.constant.UserConstant;
 import com.mulan.fengwo_backend.exceptions.BusinessException;
 import com.mulan.fengwo_backend.mapper.UserMapper;
@@ -15,15 +16,19 @@ import com.mulan.fengwo_backend.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,6 +41,8 @@ public class UserServiceImpl implements UserService {
 
     @Resource
     UserMapper userMapper;
+    @Resource
+    StringRedisTemplate stringRedisTemplate;
 
     @Override
     public User searchUserById(Long id) {
@@ -49,12 +56,31 @@ public class UserServiceImpl implements UserService {
      * @return 脱敏后的用户列表
      */
     @Override
-    public List<User> searchUsersByTags(List<String> tagNameList) {
+    public List<User> searchUsersByTags(int pageNum, int pageSize, List<String> tagNameList) {
         if (CollectionUtils.isEmpty(tagNameList)) {
             throw new BusinessException(ErrorCode.NULL_ERROR, "标签为空");
         }
+        PageHelper.startPage(pageNum, pageSize);
         List<User> users = userMapper.getUsersByTags(tagNameList);
-        return users.stream().map(this::getSafetyUser).collect(Collectors.toList());
+        PageInfo<User> pageInfo = new PageInfo<>(users);
+        return pageInfo.getList().stream().map(this::getSafetyUser).collect(Collectors.toList());
+    }
+
+    /**
+     * 查询符合标签的用户（部分匹配）
+     *
+     * @param tagNameList
+     * @return
+     */
+    @Override
+    public List<User> searchUsersByMatchingTags(int pageNum, int pageSize, List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
+            throw new BusinessException(ErrorCode.NULL_ERROR, "标签为空");
+        }
+        PageHelper.startPage(pageNum, pageSize);
+        List<User> users = userMapper.getUsersByMatchingTags(tagNameList);
+        PageInfo<User> pageInfo = new PageInfo<>(users);
+        return pageInfo.getList().stream().map(this::getSafetyUser).collect(Collectors.toList());
     }
 
     /**
@@ -200,34 +226,58 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> recommendUsers(int pageNum, int pageSize, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
-        //如果未登陆，按默认推荐
-        if (user == null) {
-            PageHelper.startPage(pageNum, pageSize);
-            //紧跟着PageHelper.startPage(pageNum,pageSize)的sql语句才被pageHelper起作用
-            List<User> users = userMapper.getAllUsers();
-            PageInfo<User> pageInfo = new PageInfo<>(users);
-            return pageInfo.getList();
-        }
-        //如果登陆按用户标签推荐
-        //1.获取当前用户的标签
-        String userTagString = user.getTag();
         Gson gson = new Gson();
-        java.lang.reflect.Type userListType = new TypeToken<List<String>>() {
-        }.getType();
-        List<String> userTagList = gson.fromJson(userTagString, userListType);
-        //2.搜索包含其中某个标签的用户（todo 现在还是包含所有标签的用户）
-        return userMapper.getUsersByTags(userTagList);
+        ValueOperations<String, String> stringStringValueOperations = stringRedisTemplate.opsForValue();
+        //如果登陆按用户标签推荐
+        if (user != null) {
+            //查缓存
+            Long userId = user.getId();
+            //缓存key加上分页信息
+            String userPageKey = "" + userId + "&" + pageNum + "&" + pageSize;
+            String cache = stringStringValueOperations.get(RedisConstant.RECOMMEND_USERS + userPageKey);
+            if (StringUtils.isNotBlank(cache)) {
+                Type type = new TypeToken<List<User>>() {
+                }.getType();
+                return gson.fromJson(cache, type);
+            }
+            //1.获取当前用户的标签
+            String userTagString = user.getTag();
+            Type userListType = new TypeToken<List<String>>() {
+            }.getType();
+            List<String> userTagList = gson.fromJson(userTagString, userListType);
+            //2.搜索包含其中某个标签的用户
+            List<User> users = this.searchUsersByMatchingTags(pageNum, pageSize, userTagList);
+            //3.列表中排除自己
+            users = users.stream().filter(resUser -> !Objects.equals(resUser.getId(), userId))
+                    .collect(Collectors.toList());
+            //4.写缓存
+            String usersCache = gson.toJson(users);
+            try {
+                stringStringValueOperations.set(RedisConstant.RECOMMEND_USERS + userPageKey, usersCache,3600, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                log.error("write cache error",e);
+            }
+            return users;
+        }
+        //如果未登陆，按默认推荐所有用户
+        PageHelper.startPage(pageNum, pageSize);
+        //紧跟着PageHelper.startPage(pageNum,pageSize)的sql语句才被pageHelper起作用
+        List<User> pageUsers = userMapper.getAllUsers().stream()
+                .map(this::getSafetyUser)
+                .collect(Collectors.toList());
+        PageInfo<User> pageInfo = new PageInfo<>(pageUsers);
+        return pageInfo.getList();
     }
 
     /**
      * 根据队伍id查询队伍中的成员
      *
-     * @param id
+     * @param teamId
      * @return
      */
     @Override
-    public List<UserVO> getTeamUserList(Long id) {
-        List<User> teamUserList = userMapper.getTeamUserList(id);
+    public List<UserVO> getTeamUserList(Long teamId) {
+        List<User> teamUserList = userMapper.getTeamUserList(teamId);
         List<UserVO> teamUserVOList = new ArrayList<>();
         for (User user : teamUserList) {
             UserVO userVO = new UserVO();
