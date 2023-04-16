@@ -9,15 +9,14 @@ import com.mulan.fengwo_backend.constant.RedisConstant;
 import com.mulan.fengwo_backend.constant.UserConstant;
 import com.mulan.fengwo_backend.exceptions.BusinessException;
 import com.mulan.fengwo_backend.mapper.UserMapper;
-import com.mulan.fengwo_backend.model.VO.UserVO;
+import com.mulan.fengwo_backend.model.vo.UserVO;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.request.UserLoginRequest;
 import com.mulan.fengwo_backend.service.UserService;
+import com.mulan.fengwo_backend.utils.RedisCacheUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
@@ -42,7 +41,7 @@ public class UserServiceImpl implements UserService {
     @Resource
     UserMapper userMapper;
     @Resource
-    StringRedisTemplate stringRedisTemplate;
+    RedisCacheUtil redisCacheUtil;
 
     @Override
     public User searchUserById(Long id) {
@@ -227,36 +226,32 @@ public class UserServiceImpl implements UserService {
     public List<User> recommendUsers(int pageNum, int pageSize, HttpServletRequest request) {
         User user = (User) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
         Gson gson = new Gson();
-        ValueOperations<String, String> stringStringValueOperations = stringRedisTemplate.opsForValue();
         //如果登陆按用户标签推荐
         if (user != null) {
-            //查缓存
+            //1 查缓存
             Long userId = user.getId();
             //缓存key加上分页信息
             String userPageKey = "" + userId + "&" + pageNum + "&" + pageSize;
-            String cache = stringStringValueOperations.get(RedisConstant.RECOMMEND_USERS + userPageKey);
-            if (StringUtils.isNotBlank(cache)) {
-                Type type = new TypeToken<List<User>>() {
-                }.getType();
-                return gson.fromJson(cache, type);
+            Type type = new TypeToken<List<User>>() {
+            }.getType();
+            List<User> cache = redisCacheUtil.getCache(RedisConstant.RECOMMEND_USERS + userPageKey,type);
+            if (cache != null) {
+                return cache;
             }
-            //1.获取当前用户的标签
+            //2 没有缓存查数据库
+            // 获取当前用户的标签
             String userTagString = user.getTag();
             Type userListType = new TypeToken<List<String>>() {
             }.getType();
             List<String> userTagList = gson.fromJson(userTagString, userListType);
             //2.搜索包含其中某个标签的用户
             List<User> users = this.searchUsersByMatchingTags(pageNum, pageSize, userTagList);
-            //3.列表中排除自己
+            //3.列表中排除自己(排除自己这一页就会少一条数据)
             users = users.stream().filter(resUser -> !Objects.equals(resUser.getId(), userId))
                     .collect(Collectors.toList());
             //4.写缓存
-            String usersCache = gson.toJson(users);
-            try {
-                stringStringValueOperations.set(RedisConstant.RECOMMEND_USERS + userPageKey, usersCache,3600, TimeUnit.SECONDS);
-            } catch (Exception e) {
-                log.error("write cache error",e);
-            }
+            redisCacheUtil.setCache(RedisConstant.RECOMMEND_USERS + userPageKey,
+                    users, 600L, TimeUnit.SECONDS);
             return users;
         }
         //如果未登陆，按默认推荐所有用户

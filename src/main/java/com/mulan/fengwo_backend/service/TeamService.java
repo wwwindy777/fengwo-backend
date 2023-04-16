@@ -1,6 +1,6 @@
 package com.mulan.fengwo_backend.service;
 
-import com.mulan.fengwo_backend.model.VO.TeamVO;
+import com.mulan.fengwo_backend.model.vo.TeamVO;
 import com.mulan.fengwo_backend.model.domain.Team;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.dto.TeamQuery;

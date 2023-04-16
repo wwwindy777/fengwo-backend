@@ -1,4 +1,4 @@
-package com.mulan.fengwo_backend.model.Enums;
+package com.mulan.fengwo_backend.model.enums;
 
 /**
  * 队伍状态枚举

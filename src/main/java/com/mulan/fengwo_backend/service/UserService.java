@@ -1,6 +1,6 @@
 package com.mulan.fengwo_backend.service;
 
-import com.mulan.fengwo_backend.model.VO.UserVO;
+import com.mulan.fengwo_backend.model.vo.UserVO;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.request.UserLoginRequest;
 

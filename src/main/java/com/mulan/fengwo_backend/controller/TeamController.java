@@ -6,7 +6,7 @@ import com.mulan.fengwo_backend.common.ErrorCode;
 import com.mulan.fengwo_backend.common.ResultUtils;
 import com.mulan.fengwo_backend.constant.UserConstant;
 import com.mulan.fengwo_backend.exceptions.BusinessException;
-import com.mulan.fengwo_backend.model.VO.TeamVO;
+import com.mulan.fengwo_backend.model.vo.TeamVO;
 import com.mulan.fengwo_backend.model.domain.Team;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.domain.UserTeam;

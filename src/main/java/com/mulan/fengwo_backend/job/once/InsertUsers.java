@@ -1,4 +1,4 @@
-package com.mulan.fengwo_backend.once;
+package com.mulan.fengwo_backend.job.once;
 
 import com.mulan.fengwo_backend.mapper.UserMapper;
 import com.mulan.fengwo_backend.model.domain.User;

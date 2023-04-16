@@ -7,5 +7,6 @@ package com.mulan.fengwo_backend.constant;
 public interface RedisConstant {
     String JOIN_TEAM_LOCK = "fengwo:join_team:teamId:";
     String ADD_TEAM_LOCK = "fengwo:add_team:userId:";
+    String PRECACHE_SCHEDULED_LOCK = "fengwo:precache";
     String RECOMMEND_USERS =  "fengwo:recommend:userId:";
 }

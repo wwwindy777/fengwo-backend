@@ -1,4 +1,4 @@
-package com.mulan.fengwo_backend.model.VO;
+package com.mulan.fengwo_backend.model.vo;
 
 import lombok.Data;
 
