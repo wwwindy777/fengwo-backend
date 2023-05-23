@@ -114,7 +114,7 @@ public class TeamServiceImpl implements TeamService {
                 if (!resAddTeam || newTeamId == null) {
                     throw new BusinessException(ErrorCode.SYSTEM_ERROR, "添加队伍失败");
                 }
-                //5. 插入用户  => 队伍关系到关系表，此处会嵌套其他的service，尽量不要直接使用Mapper
+                //5. 插入用户  => 队伍关系到关系表
                 UserTeam userTeam = new UserTeam();
                 userTeam.setUserId(addUserId);
                 userTeam.setTeamId(newTeamId);
@@ -219,8 +219,8 @@ public class TeamServiceImpl implements TeamService {
             if (expireTime != null && new Date().after(expireTime)) {
                 continue;
             }
-            //4. 只有管理员才能查看加密还有非公开的房间
-            if (!isAdmin && teamVO.getStatus() == 1) {
+            //4. 只有管理员和自己才能查看加密还有非公开的房间
+            if (teamVO.getStatus() == 1 && !isAdmin && !userId.get().equals(team.getUserId())) {
                 continue;
             }
             //5. 查询已创建队伍的用户信息

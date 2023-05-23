@@ -1,4 +1,4 @@
-package com.mulan.fengwo_backend.utils;
+package com.mulan.fengwo_backend.util;
 
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;

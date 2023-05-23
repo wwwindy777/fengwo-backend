@@ -13,7 +13,7 @@ import com.mulan.fengwo_backend.model.vo.UserVO;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.model.request.UserLoginRequest;
 import com.mulan.fengwo_backend.service.UserService;
-import com.mulan.fengwo_backend.utils.RedisCacheUtil;
+import com.mulan.fengwo_backend.util.RedisCacheUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
         safetyUser.setUserAccount(user.getUserAccount());
         safetyUser.setAvatarUrl(user.getAvatarUrl());
         safetyUser.setGender(user.getGender());
-        safetyUser.setPhone("");
+        safetyUser.setPhone(user.getPhone());
         safetyUser.setEmail("");
         safetyUser.setUserStatus(0);
         safetyUser.setUserRole(user.getUserRole());

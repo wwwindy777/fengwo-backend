@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.mulan.fengwo_backend.constant.RedisConstant;
 import com.mulan.fengwo_backend.model.domain.User;
 import com.mulan.fengwo_backend.service.UserService;
-import com.mulan.fengwo_backend.utils.RedisCacheUtil;
+import com.mulan.fengwo_backend.util.RedisCacheUtil;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.annotation.Scheduled;
