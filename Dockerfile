@@ -9,4 +9,4 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Run the web service on container startup.
-CMD ["java","-jar","/app/target/fengwo_backend-0.0.1-SNAPSHOT.jar","--spring.profiles.active=test"]
+CMD ["java","-jar","/app/target/fengwo_backend-0.0.1-SNAPSHOT.jar","--spring.profiles.active=prod"]
